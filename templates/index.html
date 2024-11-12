@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Strength Training Tracker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+</head>
+<body>
+    <h1>Enter Workout Data</h1>
+    <form method="POST" id="data-entry-form" action="{{ url_for('index') }}">  
+        <div>
+            <label for="date">Date:</label>
+            <input type="date" name="date" value="{{ today }}" required> 
+        </div>
+        <div>
+            <label for="exercise">Exercise:</label>
+            <select name="exercise" id="exercise-select">
+                {% for exercise in exercises %}
+                    <option value="{{ exercise }}">{{ exercise }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label for="reps">Reps:</label>
+            <select name="reps">
+                {% for i in range(1, 31) %}
+                    <option value="{{ i }}">{{ i }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label for="weight">Weight:</label>
+            <input type="number" name="weight" required>
+        </div>
+        <div>
+            <label for="notes">Notes:</label>
+            <textarea name="notes"></textarea>
+        </div>
+        <button type="submit">Submit</button>
+    </form>
+    <h2>Previous Workouts</h2>
+    <ul>
+        {% for workout in previous_workouts %}
+             <li>
+                {{ workout.exercise }} - Reps: {{ workout.reps }}, Weight: {{ workout.weight }}
+                <a href="{{ url_for('edit_workout', workout_id=workout.id) }}">Edit</a>
+            </li>
+        {% endfor %}
+    </ul>
+    <h2>Today's Plan</h2>
+
+    <div>
+        <label for="exercise">Exercise:</label>
+        <select name="exercise" id="exercise-select-planner"> 
+            {% for exercise in exercises %}
+                <option value="{{ exercise }}">{{ exercise }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div>
+        <label for="sets">Sets:</label>
+        <select name="sets" id="sets">
+            {% for i in range(1, 31) %}
+                <option value="{{ i }}">{{ i }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div>
+        <label for="reps">Reps:</label> <select name="reps" id="reps">
+            {% for i in range(1, 31) %}
+                <option value="{{ i }}">{{ i }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div>
+        <label for="percentage">Percentage:</label>
+        <input type="number" name="percentage" id="percentage" required>
+    </div>
+    <button id="add-exercise">Add Exercise</button> 
+
+    <div id="workout-planner"></div>
+
+    <script>
+    const planner = document.getElementById('workout-planner');
+    const exerciseSelect = document.getElementById('exercise-select-planner');
+    let workoutData = [];
+
+    function deleteExercise(index) {
+    workoutData.splice(index, 1);
+    renderWorkout();
+    }
+
+    function renderWorkout() {
+    planner.innerHTML = '';
+
+    workoutData.forEach((entry, index) => {
+        const entryDiv = document.createElement('div');
+        entryDiv.innerHTML = `
+            ${entry.exercise} - Sets: ${entry.sets}, Reps: ${entry.reps}, Percentage: ${entry.percentage}%
+            <button onclick="deleteExercise(${index})">x</button>
+        `;
+        planner.appendChild(entryDiv);
+    });
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+
+    function addExercise() {
+        const exercise = exerciseSelect.value;
+        const sets = parseInt(document.getElementById('sets').value);
+        const reps = parseInt(document.getElementById('reps').value);
+        const percentage = parseFloat(document.getElementById('percentage').value);
+
+        const entry = {
+            exercise: exercise,
+            sets: sets,
+            reps: reps,
+            percentage: percentage
+        };
+
+        workoutData.push(entry);
+        renderWorkout();
+    }
+
+    document.getElementById('add-exercise').addEventListener('click', addExercise);
+});
+    </script>
+</body>
+</html>
